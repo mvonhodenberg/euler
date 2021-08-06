@@ -1,3 +1,4 @@
+import math
 def CheckPandigital(n):
     if "0" in str(n):
         return False
@@ -12,7 +13,7 @@ def isPrime(n):
     if n % 2 == 0 or n % 3 == 0:
         return False
 
-    for f in range(5, int(n ** .5), 6):
+    for f in range(5, math.ceil(n ** .5), 6):
         if n % f == 0 or n % (f + 2) == 0:
             return False
     return True
