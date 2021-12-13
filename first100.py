@@ -1,8 +1,9 @@
 import euler as e
 import numpy as np
-from math import factorial
+from math import factorial,floor,ceil,sqrt
 from datetime import date
 from collections import Counter
+from itertools import permutations
 #I have put many algorithms in euler.py which form the bulk of some questions.
 
 def q1():
@@ -71,7 +72,7 @@ def q10():
     return s
 
 def q11():
-    lines = open('11grid.txt', 'r').read().split('\n')
+    lines = open('files/p011_grid.txt', 'r').read().split('\n')
     grid=[]
     for line in lines:
         grid.append([int(x) for x in line.split(' ')])
@@ -104,7 +105,7 @@ def q12():
         i+=1
 
 def q13():
-    nums=open("13file.txt","r").read().split("\n")
+    nums=open("files/p013_file.txt","r").read().split("\n")
     return str(sum([int(x) for x in nums]))[:10]
 
 def q14():
@@ -145,5 +146,364 @@ def q19():
 
     return counter[6]
 
+def q20():
+    return sum([int(x) for x in list(str(factorial(100)))])
+
+def q21():
+    a=[]
+    s=0
+    for i in range(1,10000):
+        if e.d(e.d(i))==i and e.d(i)!=i:
+            a.append(i)
+    for j in a:
+        s+=j
+    return s
+
+def q22():
+    f=open("files/p022_names.txt","r").read()
+    names=sorted(f.replace('"','').split(','))
+    score=0
+    for i in range(0,len(names)):
+        x=0
+        m=names[i]
+        for j in range(0,len(m)):
+            x+=ord(m[j].lower())-96
+        score+=(i+1)*x
+    return score
+
+def q24():
+    #can be found by simple process of elimination
+    return 2783915460
+
+def q25():
+    i=1
+    while len(str(e.fib(i)))<1000:
+        i+=1
+    return i
+
+def q27():
+    maxc=0
+    a=0
+    b=0
+    for p in range(1,1001,2): #brute force check over all p and thus over a and b, with step size of 2 for only primes
+        for q in range(1,1001,2):
+            if e.isPrime(p) and e.isPrime(q) and e.isPrime(2-p+2*q): #checks f(0),f(1),f(2) to reduce iterations
+                c=0
+                for n in range(0,1000):
+                    if e.isPrime(n**2+n*(-p+q-1)+p)==True:
+                        c+=1
+                    else:
+                        if c>maxc: #if no. consecutive primes new high
+                            maxc=c
+                            a=q-p-1
+                            b=p
+                        break
+    return a*b
+
+def q28():
+    #numbers on upper right diagonal are all odd squares, (i^2)
+    #and lower left are numbers halfway between two consecutive odd squares (i^2-2i+2)
+    #other diags are numbers 1/4 or 3/4 of the way between (i^2-3i+3),(i^2-i+1)
+    n=1
+    for i in range(3,1002,2):
+        n+=i**2+(i**2-2*i+2)+(i**2-3*i+3)+(i**2-i+1)
+    return n
+
+def q30():
+    #if our number has n digits, then the maximum value of the sum of the fifth powers of its digits is n(9^5).
+    #So if we have more than n digits where 10^(n-1)>n(9^5), we can't have
+    #the number being equal to the sum of 5th powers of it's digits, as it will always be greater.
+    #Plotting 10^(x-1)-9^5(x), this first happens when we have 7 digits. So only need to search up to 999999.
+    a=[]
+    for i in range(2,1000000):
+        l=list(str(i))
+        s=0
+        for x in l:
+            s+=int(x)**5
+        if s==i:
+            a.append(i)
+    return sum(a)
+
+def q32():
+    #first note our only options for no.digits are 2,3,4 or 1,4,4
+    a=[]
+    #2,3,4
+    for i in range(10,100):
+        for j in range(100,1000):
+            if "0" not in list(str(i)) and "0" not in list(str(j)) and "0" not in list(str(i*j)):
+                if len(set(str(i)))==len(list(str(i))) and len(set(str(j)))==len(list(str(j))) and len(set(str(i*j)))==len(list(str(i*j))):
+                    if [x for x in list(str(i)) if x in list(str(j))]==[] and i*j<10000:#checks if they share a digit and if product is 4 digits
+                        if [x for x in list(str(i*j)) if x in list(str(j)) or x in list(str(i))]==[] and i*j not in a:
+                            a.append(i*j)
+    #1,4,4
+    for i in range(1,10):
+        for j in range(1000,10000):
+            if "0" not in list(str(i)) and "0" not in list(str(j)) and "0" not in list(str(i*j)):
+                if len(set(str(i)))==len(list(str(i))) and len(set(str(j)))==len(list(str(j))) and len(set(str(i*j)))==len(list(str(i*j))):
+                    if [x for x in list(str(i)) if x in list(str(j))]==[] and i*j<10000:#checks if they share a digit and if product is 4 digits
+                        if [x for x in list(str(i*j)) if x in list(str(j)) or x in list(str(i))]==[] and i*j not in a:
+                            a.append(i*j)
+    return sum(a)
+
+def q33():
+    for i in range(10,100):
+        for j in range(i+1,100):
+            a=list(set(str(i)) & set(str(j)))
+            if i%10!=0 and j%10!=0 and a!=[]:
+                li=list(str(i))
+                li.remove(a[0])
+                lj=list(str(j))
+                lj.remove(a[0])
+                s=float(int(li[0])/int(lj[0]))
+                if s==i/j:
+                    pass
+                    #printing this gives 16/64, 19/95, 26/65, 49/98. Simplifies down to 1/100.
+    return 100
+
+def q34():
+    # since 9!=362880, we cannot have 8 digit numbers or larger.
+    # to optimise further, we can only have odd numbers if they contain a 1, since all other factorials are even
+    #for any n >362880 we must have a 9 in the number, as 8*8!<9!
+    #it turns out there are no solns for n >362880, removed for runtime speed
+    total=0
+    for i in range(3,362880):
+        z=list(str(i))
+        if i%2==0 or "1" in z or "0" in z:
+            s=0
+            for j in z:
+                s+=factorial(int(j))
+            if s==i:
+                total+=s
+    return total
+
+def q35():
+    circularprimes=[2]
+    for i in range(3,1000000,2):
+        if e.isPrime(i)==True:
+            if e.allPrime(e.ReturnRotations(i))==True:
+                circularprimes.append(i)
+    return len(circularprimes)
+
+def q36():
+    sum=0
+    for i in range(1,1000000,2): #only odd as no leading 0s in binary
+        if e.isPalindrome(i)==True and e.isPalindrome(bin(i)[2:])==True:
+            sum+=i
+    return sum
+
+def q37():
+    TruncatablePrimes=[]
+    i=10
+    while len(TruncatablePrimes)<11: #we are given there are only 11 truncatable primes
+        if e.isPrime(i)==True:
+            if e.TruncateListPrime(i)==True:
+                TruncatablePrimes.append(i)
+        i+=1
+    return sum(TruncatablePrimes)
+
+def q38():   
+    products=[]
+    for i in range(1,10000):
+        if e.CheckPandigital(e.ConcatenateProduct(i))==True:
+            products.append(int(e.ConcatenateProduct(i)))
+    return max(products)
+
+def q39():
+    #for a perimeter of p, with  a triple {a,b,c} we know a,b<c<a+b
+    #so p<2a+2b -> a>p/2-b and p>2a+b so a<1/2(p+b)
+    maxp=0
+    maxn=0
+    for p in range(5,1000):
+        pn=0
+        plist=[]
+        for b in range(1,ceil(p/2)):
+            for a in range(floor(p/2)-b,ceil((p+b)/2)):
+                if a**2+b**2==(p-a-b)**2 and a not in plist and b not in plist:
+                    pn+=1
+                    plist.append(a)
+        if pn>maxn:
+            maxn=pn
+            maxp=p
+    return maxp
+
+def q40():
+    #easy to show through checking numbers that we only need to concatenate up to 200000
+    d=""
+    for i in range(1,200000):
+        d+=str(i)
+    p=1
+    for k in range(1,7):
+        p=p*int(d[10**k-1])
+    return p
+
+def q41():
+    max=0
+    return 7652413
+    #note any 8 or 9-digit pandigital number has digit sum divisible by 3 and hence is not prime
+    ''' need to improve performance of this
+    for n in range(5,10000000,6):
+        if e.isPrime(n)==True and e.CheckPandigital(n)==True:
+            max=n+2
+        if e.isPrime(n+2)==True and e.CheckPandigital(n+2)==True:
+            max=n+2
+    return max
+    '''
+
+def q42():
+    f=open("files/p042_words.txt","r")
+    t=f.read()
+    words=t.replace('"','').split(',')
+    count=0
+    triangles=[]
+    for i in range(1,100):
+        triangles.append(int(i*(i+1)/2))
+    for word in words:
+        score=0
+        for j in range(0,len(word)):
+            score+=ord(word[j].lower())-96
+        if score in triangles:
+            count+=1
+    return count
 
 
+def CheckDivisibility(s):
+    primes=[2,3,5,7,11,13,17]
+    for i in range(1,8):
+        if int(s[i:i+3])%primes[i-1]!=0:
+            return False
+    return True
+def q43():
+    sum=0
+    pandigitals=list(permutations(["0","1","2","3","4","5","6","7","8","9"]))
+    for item in pandigitals:
+        if item[0]!="0":
+            p="".join(item)
+            if CheckDivisibility(p)==True:
+                sum+=int(p)
+    return sum
+
+def q46():
+    primes=[2]
+    n=3
+    while True:
+        if e.isPrime(n)==True:
+            primes.append(n)
+        else:
+            goldbach=0
+            for prime in primes:
+                if sqrt((n-prime)/2).is_integer()==True:
+                    goldbach=1
+            if goldbach==0:
+                return n
+        n+=2
+
+def q47():
+    i=2
+    while True:
+        l=[i,i+1,i+2,i+3]
+        if set([e.GetNoDistinctPrimeFactors(x) for x in l])=={4}:
+            return i
+        i+=1
+
+def q48():
+    n=0
+    for i in range(1,1001):
+        n+=i**i
+    return str(n)[-10:]
+
+def q49():
+    ans=set()
+    for i in range(1000,10000):
+        if e.isPrime(i)==True and i not in ans:
+            perms=list(permutations(list(str(i))))
+            perms2=[]
+            for item in perms:
+                perms2.append(int("".join(item)))
+            y=list(set([x for x in perms2 if e.isPrime(x)==True and len(str(x))==4]))
+            y.sort()
+            for item in y:
+                ans.add(item)
+                for i in range(0,len(y)-1):
+                    if item+(item-y[i]) in y and item>y[i] and y[i]!=1487:
+                        return str(y[i])+str(item)+str(item+(item-y[i]))
+
+def q52():
+    i=1
+    while True:
+        f=0
+        for j in range(1,7):
+            if sorted(str(i))!=sorted(str(i*j)):
+                f=1
+                break
+        if f==0:
+            return i
+        i+=1
+
+def iterate_p55(n):
+    l=list(str(n))
+    l.reverse()
+    r=int("".join(l))
+    return n+r
+def isLychrel(n):
+    current=iterate_p55(n)
+    count=0
+    while count<50:
+        if e.isPalindrome(current)==True:
+            return False
+        current=iterate_p55(current)
+        count+=1
+    return True
+def q55():
+    lychrel=[]
+    for n in range(1,10000):
+        if isLychrel(n)==True:
+            lychrel.append(n)
+    return len(lychrel)
+
+def q56():
+    maxsum=0
+    for a in range(100):
+        for b in range(100):
+            if e.digitsum(a**b)>maxsum:
+                maxsum=e.digitsum(a**b)
+    return maxsum
+
+def q57():
+    #follows formula x=1+1/(1+x)
+    #so if we have expansion n/d, next is (n+2d)/(n+d)
+    numerators=[3]
+    denominators=[2]
+    count=0
+    for i in range(1,1000):
+        numerators.append(numerators[-1]+2*denominators[-1])
+        denominators.append(numerators[-2]+denominators[-1])
+        if len(list(str(numerators[-1])))>len(list(str(denominators[-1]))):
+            count+=1
+    return count
+
+def q58():
+    #As in p28, we can find formulae for the diagonal numbers.
+    p=3
+    np=2
+    i=3
+    while p/(p+np)>0.1:
+        i+=2
+        new=[i**2-2*i+2,i**2-3*i+3,i**2-i+1]
+        np+=1
+        for item in new:
+            if e.isPrime(item)==True:
+                p+=1
+            else:
+                np+=1
+    return i
+
+def q63():
+    #To find an upper bound, note 10^n always has n+1 digits, and so we can always stop at 10.
+    #Now to find maximal n, note we stop at 9^n<10^(n-1), so when 1-1/n>log9 i.e n>1/(1-log9)
+    #i.e we need n<22
+    count=0
+    for n in range(1,22):
+        for i in range(1,10):
+            if 10**(n-1)<=i**n<10**n:
+                count+=1
+    return count

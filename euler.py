@@ -43,3 +43,74 @@ def CollatzLength(n):
             i=3*i+1
         c+=1
     return c
+
+def d(n):
+    s=0
+    for i in range(1,n):
+        if n%i==0:
+            s+=i
+    return s
+
+def allPrime(l):
+    for x in l:
+        if isPrime(x)==False:
+            return False
+    return True
+
+def ReturnRotations(n):
+    l=[]
+    z=list(str(n))
+    if len(z)==1:
+        return [n]
+    for i in range(0,len(z)):
+        x=z.pop()
+        a=""
+        z.insert(0,x)
+        for item in z:
+            a+=item
+        l.append(int(a))
+    return l
+
+def TruncateListPrime(n):
+    l=[n]
+    for i in range(1,len(str(n))):
+        l.append(int(str(n)[i:]))
+        l.append(int(str(n)[:i]))
+    for num in l:
+        if e.isPrime(num)==False:
+            return False
+    return True
+
+def ConcatenateProduct(n):
+    s=""
+    i=1
+    while len(s)<9:
+        s+=str(i*n)
+        i+=1
+    if len(s)==9:
+        return s
+    else:
+        return ""
+
+def CheckPandigital(s):
+    s=str(s)
+    if len(s)==0:
+        return False
+    if "0" not in list(s) and len(set(s))==len(list(s)):
+        return True
+
+def GetNoDistinctPrimeFactors(n):
+    i = 2
+    factors = []
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.append(i)
+    if n > 1:
+        factors.append(n)
+    return len(set(factors))
+
+def digitsum(n):
+    return sum([int(x) for x in list(str(n))])
