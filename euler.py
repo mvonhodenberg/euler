@@ -77,7 +77,7 @@ def TruncateListPrime(n):
         l.append(int(str(n)[i:]))
         l.append(int(str(n)[:i]))
     for num in l:
-        if e.isPrime(num)==False:
+        if isPrime(num)==False:
             return False
     return True
 
